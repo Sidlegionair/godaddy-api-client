@@ -515,6 +515,11 @@ class DomainDetailV2 implements ArrayAccess
         return $this;
     }
 
+
+    public function getRenewalPrice() {
+        return $this->container['renewal']['price'];
+    }
+
     /**
      * Gets transfer_protected
      * @return bool
