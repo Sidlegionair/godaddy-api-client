@@ -105,11 +105,11 @@ class VdomainsApi
      *
      * Determine whether or not the specified domain is available for purchase
      *
-     * @param string|array $domain Domain name or array of domain names whose availability is to be checked (required)
+     * @param string $domain Domain name whose availability is to be checked (required)
      * @param string $check_type Optimize for time (&#39;FAST&#39;) or accuracy (&#39;FULL&#39;) (optional, default to FAST)
      * @param bool $for_transfer Whether or not to include domains available for transfer (optional, default to false)
      * @param int $wait_ms Maximum amount of time, in milliseconds, to wait for responses If elapses, return the results compiled up to that point, some of which may not be authoritative (optional, default to 1000)
-     * @return \GoDaddyDomainsClient\Model\DomainAvailableResponse|array of \GoDaddyDomainsClient\Model\DomainAvailableResponse
+     * @return \GoDaddyDomainsClient\Model\DomainAvailableResponse
      * @throws \GoDaddyDomainsClient\ApiException on non-2xx response
      */
     public function available($domain, $check_type = null, $for_transfer = null, $wait_ms = null)
@@ -123,11 +123,11 @@ class VdomainsApi
      *
      * Determine whether or not the specified domain is available for purchase
      *
-     * @param string|array $domain Domain name or array of domain names whose availability is to be checked (required)
+     * @param string $domain Domain name whose availability is to be checked (required)
      * @param string $check_type Optimize for time (&#39;FAST&#39;) or accuracy (&#39;FULL&#39;) (optional, default to FAST)
      * @param bool $for_transfer Whether or not to include domains available for transfer (optional, default to false)
      * @param int $wait_ms Maximum amount of time, in milliseconds, to wait for responses If elapses, return the results compiled up to that point, some of which may not be authoritative (optional, default to 1000)
-     * @return array of \GoDaddyDomainsClient\Model\DomainAvailableResponse|array of \GoDaddyDomainsClient\Model\DomainAvailableResponse , HTTP status code, HTTP response headers (array of strings)
+     * @return Array of \GoDaddyDomainsClient\Model\DomainAvailableResponse, HTTP status code, HTTP response headers (array of strings)
      * @throws \GoDaddyDomainsClient\ApiException on non-2xx response
      */
     public function availableWithHttpInfo($domain, $check_type = null, $for_transfer = null, $wait_ms = null)
@@ -139,7 +139,6 @@ class VdomainsApi
         // parse inputs
         $resourcePath = "/v1/domains/available";
         $httpBody = '';
-	    $method = 'GET';
         $queryParams = array();
         $headerParams = array();
         $formParams = array();
@@ -151,12 +150,7 @@ class VdomainsApi
 
         // query params
         if ($domain !== null) {
-	        if (is_array($domain)) {
-		        $httpBody .= json_encode($domain);
-		        $method = 'POST';
-	        } else {
-		        $queryParams['domain'] = $this->apiClient->getSerializer()->toQueryValue($domain);
-	        }
+            $queryParams['domain'] = $this->apiClient->getSerializer()->toQueryValue($domain);
         }
         // query params
         if ($check_type !== null) {
@@ -184,23 +178,15 @@ class VdomainsApi
         try {
             list($response, $statusCode, $httpHeader) = $this->apiClient->callApi(
                 $resourcePath,
-                $method,
+                'GET',
                 $queryParams,
                 $httpBody,
                 $headerParams,
                 '\GoDaddyDomainsClient\Model\DomainAvailableResponse',
                 '/v1/domains/available'
             );
-            if (!empty($response->domains)) {
-	            $objects = array();
-	            foreach ( $response->domains as $domain ) {
-		            $objects[] = $this->apiClient->getSerializer()->deserialize($domain, '\GoDaddyDomainsClient\Model\DomainAvailableResponse', $httpHeader);
-	            }
-            } else {
-	            $objects = $this->apiClient->getSerializer()->deserialize($response, '\GoDaddyDomainsClient\Model\DomainAvailableResponse', $httpHeader);
-            }
 
-	        return array( $objects, $statusCode, $httpHeader );
+            return array($this->apiClient->getSerializer()->deserialize($response, '\GoDaddyDomainsClient\Model\DomainAvailableResponse', $httpHeader), $statusCode, $httpHeader);
         } catch (ApiException $e) {
             switch ($e->getCode()) {
                 case 200:
@@ -613,6 +599,109 @@ class VdomainsApi
         return $response;
     }
 
+    public function getv2($domain, $customerId) {
+        list($response) = $this->getV2WithHttpInfo($domain, $customerId);
+        return $response;
+    }
+
+    public function getV2WithHttpInfo($domain, $customer_id)
+    {
+        // verify the required parameter 'domain' is set
+        if ($domain === null) {
+            throw new \InvalidArgumentException('Missing the required parameter $domain when calling get');
+        }
+        // parse inputs
+        $resourcePath = "/v2/customers/{customerId}/domains/{domain}";
+
+        $httpBody = '';
+        $queryParams = array();
+        $headerParams = array();
+        $formParams = array();
+        $_header_accept = $this->apiClient->selectHeaderAccept(array('application/json', 'application/javascript', 'application/xml', 'text/javascript', 'text/xml'));
+        if (!is_null($_header_accept)) {
+            $headerParams['Accept'] = $_header_accept;
+        }
+        $headerParams['Content-Type'] = $this->apiClient->selectHeaderContentType(array('application/json', 'application/xml', 'text/xml'));
+
+        // path params
+        if ($domain !== null) {
+            $resourcePath = str_replace(
+                "{" . "domain" . "}",
+                $this->apiClient->getSerializer()->toPathValue($domain),
+                $resourcePath
+            );
+        }
+        if($customer_id !== null) {
+            $resourcePath = str_replace(
+                "{" . "customerId" . "}",
+                $this->apiClient->getSerializer()->toPathValue($customer_id),
+                $resourcePath
+            );
+
+        }
+        // default format to json
+        $resourcePath = str_replace("{format}", "json", $resourcePath);
+
+
+        // for model (json/xml)
+        if (isset($_tempBody)) {
+            $httpBody = $_tempBody; // $_tempBody is the method argument, if present
+        } elseif (count($formParams) > 0) {
+            $httpBody = $formParams; // for HTTP post (form)
+        }
+        // make the API Call
+        try {
+            list($response, $statusCode, $httpHeader) = $this->apiClient->callApi(
+                $resourcePath,
+                'GET',
+                $queryParams,
+                $httpBody,
+                $headerParams,
+                '\GoDaddyDomainsClient\Model\DomainDetailV2',
+                '/v2/customers/{customerId}/domains/{domain}'
+            );
+
+            return array($this->apiClient->getSerializer()->deserialize($response, '\GoDaddyDomainsClient\Model\DomainDetailV2', $httpHeader), $statusCode, $httpHeader);
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\GoDaddyDomainsClient\Model\DomainDetailV2', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+                case 400:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\GoDaddyDomainsClient\Model\Error', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+                case 422:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\GoDaddyDomainsClient\Model\Error', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+                case 401:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\GoDaddyDomainsClient\Model\Error', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+                case 500:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\GoDaddyDomainsClient\Model\Error', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+                case 403:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\GoDaddyDomainsClient\Model\Error', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+                case 404:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\GoDaddyDomainsClient\Model\Error', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+                case 429:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\GoDaddyDomainsClient\Model\ErrorLimit', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+            }
+
+            throw $e;
+        }
+    }
+
     /**
      * Operation getWithHttpInfo
      *
@@ -631,6 +720,7 @@ class VdomainsApi
         }
         // parse inputs
         $resourcePath = "/v1/domains/{domain}";
+
         $httpBody = '';
         $queryParams = array();
         $headerParams = array();
@@ -653,6 +743,7 @@ class VdomainsApi
                 $resourcePath
             );
         }
+
         // default format to json
         $resourcePath = str_replace("{format}", "json", $resourcePath);
 
@@ -674,6 +765,7 @@ class VdomainsApi
                 '\GoDaddyDomainsClient\Model\DomainDetail',
                 '/v1/domains/{domain}'
             );
+
 
             return array($this->apiClient->getSerializer()->deserialize($response, '\GoDaddyDomainsClient\Model\DomainDetail', $httpHeader), $statusCode, $httpHeader);
         } catch (ApiException $e) {
@@ -1425,7 +1517,7 @@ class VdomainsApi
         // path params
         if ($type !== null) {
             $resourcePath = str_replace(
-                "{" . "type?" . "}",
+                "{" . "type" . "}",
                 $this->apiClient->getSerializer()->toPathValue($type),
                 $resourcePath
             );
@@ -1433,7 +1525,7 @@ class VdomainsApi
         // path params
         if ($name !== null) {
             $resourcePath = str_replace(
-                "{" . "name?" . "}",
+                "{" . "name" . "}",
                 $this->apiClient->getSerializer()->toPathValue($name),
                 $resourcePath
             );
